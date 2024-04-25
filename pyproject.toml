@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "my-website-kevin"
+version = "0.1.0"
+description = ""
+authors = ["Kevin Guo <kevin.guo@williamoneilchina.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+Flask = "^3.0.3"
+Flask-SQLAlchemy = "^3.1.1"
+pycryptodome = "^3.20.0"
+flask-restx = "^1.3.0"
+Flask-Cors = "^4.0.0"
+Flask-Migrate = "^4.0.7"
+loguru = "^0.7.2"
+pymssql = "^2.3.0"
+apscheduler = "^3.10.4"
+filelock = "^3.13.4"
+pytz = "^2024.1"
+celery = "^5.4.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.1"
+flake8 = "^3.8.4"
+pytest-cov = "^2.11.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
