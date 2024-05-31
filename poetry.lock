@@ -389,6 +389,21 @@ files = [
 Flask = ">=0.9"
 
 [[package]]
+name = "flask-login"
+version = "0.6.3"
+description = "User authentication and session management for Flask."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "Flask-Login-0.6.3.tar.gz", hash = "sha256:5e23d14a607ef12806c699590b89d0f0e0d67baeec599d75947bf9c147330333"},
+    {file = "Flask_Login-0.6.3-py3-none-any.whl", hash = "sha256:849b25b82a436bf830a054e74214074af59097171562ab10bfa999e6b78aae5d"},
+]
+
+[package.dependencies]
+Flask = ">=1.0.4"
+Werkzeug = ">=1.0.1"
+
+[[package]]
 name = "flask-migrate"
 version = "4.0.7"
 description = "SQLAlchemy database migrations for Flask applications using Alembic."
@@ -1366,4 +1381,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "c8f1dae301079ae7799da38940988c88cb5f920afdefca829e61a09982a7a030"
+content-hash = "1df766c09640b8821c1f14a259551c5e8b94b59abc2c01e3295a80dda55a7334"
