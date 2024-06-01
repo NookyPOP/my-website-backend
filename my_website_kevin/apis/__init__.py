@@ -1,5 +1,12 @@
 from flask_restx import Api
 
-# from my_website_kevin.apis.login.schemas import ns as login_namespace
+from apis.login.views import login_namespace as ns
 
-api = Api()
+api = Api(
+    title="My Title",
+    version="1.0",
+    description="A description",
+)
+
+# the namespace must be added resources and routes
+api.add_namespace(ns)

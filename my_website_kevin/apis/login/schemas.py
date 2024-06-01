@@ -1,8 +1,8 @@
 from flask_restx import fields, Namespace
 
-ns = Namespace("auth")
+login_namespace = Namespace("auth")
 
-login_model = ns.model(
+login_model = login_namespace.model(
     "Login",
     {
         "username": fields.String(required=True, description="Username"),

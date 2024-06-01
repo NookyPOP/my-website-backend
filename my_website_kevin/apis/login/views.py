@@ -1,18 +1,16 @@
-from my_website_kevin.apis.login.schemas import login_model, ns
+from apis.login.schemas import login_model, login_namespace
 from flask_restx import Resource, reqparse
 
-from flask import jsonify
 
-
-@ns.route("/login")
+@login_namespace.route("/login")
 class Login(Resource):
-    @ns.expect(login_model)
+    @login_namespace.expect(login_model)
     def post(self):
         return {"message": "Login successful"}, 200
 
-    @ns.param("username", type=str, description="Name of login user")
-    @ns.param("password", type=str, description="Password of login user")
-    @ns.marshal_with(login_model)
+    @login_namespace.param("username", type=str, description="Name of login")
+    @login_namespace.param("password", type=str, description="Password or")
+    @login_namespace.marshal_with(login_model)
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument("username", type=str)
@@ -20,14 +18,16 @@ class Login(Resource):
 
         args = parser.parse_args()
 
-        response = {
+        respologin_namespacee = {
             "username": args["username"] if args["username"] else None,
             "password": args["password"] if args["password"] else None,
         }
-        return response
+        return respologin_namespacee
 
 
-@ns.route("/hello")
+@login_namespace.route("/hello")
 class HelloWorld(Resource):
+    @login_namespace.doc("hello")
+    @login_namespace.marshal_with(login_model)
     def get(self):
-        return {"hello": "world"}, 200
+        return {"hello": "world", "username": "jack"}, 200
