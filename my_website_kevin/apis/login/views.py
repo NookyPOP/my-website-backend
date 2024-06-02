@@ -1,5 +1,6 @@
-from apis.login.schemas import login_model, login_namespace
+from apis.login.schemas import login_model, login_namespace, user_model, emails
 from flask_restx import Resource, reqparse
+from apis.login.models import User, Emalis
 
 
 @login_namespace.route("/login")
@@ -31,3 +32,25 @@ class HelloWorld(Resource):
     @login_namespace.marshal_with(login_model)
     def get(self):
         return {"hello": "world", "username": "jack"}, 200
+
+
+@login_namespace.route("/user/<string:user_name>")
+class UserInfo(Resource):
+    @login_namespace.marshal_with(user_model)
+    @login_namespace.doc("user")
+    @login_namespace.response(404, "User not found")
+    @login_namespace.response(200, "User found")
+    def get(self, user_name):
+        print(user_name)
+        user = User.query.filter_by(nickname=user_name).first()
+        if not user:
+            login_namespace.abort(404)
+        return {"username": user.nickname, "mobile": user.mobile, "sex": user.sex}, 200
+
+
+@login_namespace.route("/emails")
+class EmailInfo(Resource):
+    @login_namespace.marshal_with(emails)
+    def get(self):
+        email_list = Emalis.query.all()
+        return email_list

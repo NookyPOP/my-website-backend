@@ -1,5 +1,4 @@
 from flask_restx import Api
-
 from apis.login.views import login_namespace as ns
 
 api = Api(

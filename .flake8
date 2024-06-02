@@ -1,0 +1,6 @@
+
+; set a basic config
+[flake8]
+max-line-length = 200
+extend-ignore = E203, W503, E501
+
