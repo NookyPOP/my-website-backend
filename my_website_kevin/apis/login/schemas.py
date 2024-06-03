@@ -45,3 +45,20 @@ emails = login_namespace.model(
         "spam_status": SpamItem(attribute="status_code"),
     },
 )
+
+person_model = login_namespace.model(
+    "Person",
+    {
+        "id": fields.Integer(required=True, description="ID"),
+        "name": fields.String(required=True, description="Name"),
+        "sex": fields.String(required=True, description="Sex"),
+        "age": fields.Integer(required=True, description="Age"),
+        "address": {
+            "line 1": fields.String(attribute="address1"),
+            "line 2": fields.String(attribute="address2"),
+            "city": fields.String,
+            "state": fields.String,
+            "zip": fields.String,
+        },
+    },
+)

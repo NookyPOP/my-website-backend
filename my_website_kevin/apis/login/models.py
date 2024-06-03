@@ -22,3 +22,20 @@ class Emalis(db.Model):
 
     def __repr__(self):
         return f"<User {self.email}>"
+
+
+class Person(db.Model):
+    __tablename__ = "person_info"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=False, nullable=False)
+    sex = db.Column(db.String(80), unique=False, nullable=False)
+    age = db.Column(db.Integer, unique=False, nullable=False)
+    address1 = db.Column(db.String(80), unique=False, nullable=False)
+    address2 = db.Column(db.String(80), unique=False, nullable=False)
+    state = db.Column(db.String(80), unique=False, nullable=False)
+    city = db.Column(db.String(80), unique=False, nullable=False)
+    zip = db.Column(db.Integer, unique=False, nullable=False)
+
+    def __repr__(self):
+        return f"<User {self.name}>"

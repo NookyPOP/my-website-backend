@@ -1,6 +1,12 @@
-from apis.login.schemas import login_model, login_namespace, user_model, emails
-from flask_restx import Resource, reqparse
-from apis.login.models import User, Emalis
+from apis.login.schemas import (
+    login_model,
+    login_namespace,
+    user_model,
+    emails,
+    person_model,
+)
+from flask_restx import Resource, reqparse, marshal
+from apis.login.models import User, Emalis, Person
 
 
 @login_namespace.route("/login")
@@ -54,3 +60,10 @@ class EmailInfo(Resource):
     def get(self):
         email_list = Emalis.query.all()
         return email_list
+
+
+@login_namespace.route("/person")
+class PersonInfo(Resource):
+    def get(self):
+        person_list = Person.query.all()
+        return [marshal(person, person_model) for person in person_list]
