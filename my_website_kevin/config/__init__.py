@@ -1,9 +1,11 @@
+import urllib.parse
+
+
 class Config(object):
     DEBUG = True
-    SECRET_KEY = "123456"
-    SQL_HOST = "127.0.0.1"
+    SQL_HOST = "101.133.159.192"
     SQL_USERNAME = "root"
-    SQL_PASSWORD = "root1234"
+    SQL_PASSWORD = urllib.parse.quote_plus("Root123@")
     SQL_PORT = "3306"
     SQL_DB = "practice"
     JSON_AS_ASCII = False

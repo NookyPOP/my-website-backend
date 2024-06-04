@@ -8,6 +8,7 @@ class User(db.Model):
     nickname = db.Column(db.String(80), unique=True, nullable=False)
     mobile = db.Column(db.String(80), unique=True, nullable=False)
     sex = db.Column(db.String(80), unique=True, nullable=False)
+    
 
     def __repr__(self):
         return f"<User {self.nickname}>"

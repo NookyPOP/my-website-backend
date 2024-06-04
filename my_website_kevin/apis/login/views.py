@@ -48,10 +48,21 @@ class UserInfo(Resource):
     @login_namespace.response(200, "User found")
     def get(self, user_name):
         print(user_name)
-        user = User.query.filter_by(nickname=user_name).first()
-        if not user:
-            login_namespace.abort(404)
-        return {"username": user.nickname, "mobile": user.mobile, "sex": user.sex}, 200
+        if not user_name:
+            user = User.query.filter_by(nickname=user_name).first()
+            if not user:
+                login_namespace.abort(404)
+            return {
+                "username": user.nickname,
+                "mobile": user.mobile,
+                "sex": user.sex,
+            }, 200
+
+        else:
+            user_list = User.query.all()
+            if not user_list:
+                login_namespace.abort(404)
+            return user_list, 200
 
 
 @login_namespace.route("/emails")
