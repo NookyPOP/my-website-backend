@@ -46,6 +46,28 @@ emails = login_namespace.model(
     },
 )
 
+address_model = login_namespace.model(
+    "Address",
+    {
+        "addr1": fields.String(attribute="address"),
+        "city": fields.String,
+        "state": fields.String,
+        "zip": fields.String,
+    },
+)
+
+family_model = login_namespace.model(
+    "Family", {"id": fields.Integer, "name": fields.String}
+)
+parent_model = login_namespace.model("Parent", {"name": fields.String})
+child_model = login_namespace.clone("Child", parent_model, {"age": fields.Integer})
+
+
+class AllCapsString(fields.Raw):
+    def format(self, value):
+        return value.upper()
+
+
 person_model = login_namespace.model(
     "Person",
     {
@@ -53,12 +75,24 @@ person_model = login_namespace.model(
         "name": fields.String(required=True, description="Name"),
         "sex": fields.String(required=True, description="Sex"),
         "age": fields.Integer(required=True, description="Age"),
-        "address": {
-            "line 1": fields.String(attribute="address1"),
-            "line 2": fields.String(attribute="address2"),
-            "city": fields.String,
-            "state": fields.String,
-            "zip": fields.String,
-        },
+        "billing_address": fields.Nested(address_model),
+        "shipping_address": fields.Nested(address_model),
+        # person is the endpoint name when you called api.route()
+        # "uri": fields.Url("person", absolute=True),
+        "first_names": fields.List(fields.String),
+        "family_list": fields.List(fields.Nested(family_model)),
+        "all_caps_name": AllCapsString(attribute="name"),
+    },
+)
+
+resource_fields = {"name": fields.String, "first_names": fields.List(fields.String)}
+
+type_info_model = login_namespace.model(
+    "TypeInfo",
+    {
+        "rate": fields.Integer,
+        "name": fields.String,
+        "User-Agent": fields.String,
+        "*": fields.Wildcard(fields.String),
     },
 )

@@ -8,7 +8,6 @@ class User(db.Model):
     nickname = db.Column(db.String(80), unique=True, nullable=False)
     mobile = db.Column(db.String(80), unique=True, nullable=False)
     sex = db.Column(db.String(80), unique=True, nullable=False)
-    
 
     def __repr__(self):
         return f"<User {self.nickname}>"
@@ -37,6 +36,10 @@ class Person(db.Model):
     state = db.Column(db.String(80), unique=False, nullable=False)
     city = db.Column(db.String(80), unique=False, nullable=False)
     zip = db.Column(db.Integer, unique=False, nullable=False)
+    first_names = db.Column(db.JSON, unique=False, nullable=False)
+    billing_address = db.Column(db.JSON, nullable=False, unique=False)
+    shipping_address = db.Column(db.JSON, nullable=False, unique=False)
+    family_list = db.Column(db.JSON, nullable=False, unique=False)
 
     def __repr__(self):
         return f"<User {self.name}>"
