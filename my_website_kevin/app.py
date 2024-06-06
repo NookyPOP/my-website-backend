@@ -4,6 +4,10 @@ from apis.login.services import User
 from apis import api
 from config import Config
 from database import db
+import logging
+
+# configure root logger
+logging.basicConfig(level=logging.INFO)
 
 
 config = Config()

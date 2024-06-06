@@ -96,3 +96,10 @@ type_info_model = login_namespace.model(
         "*": fields.Wildcard(fields.String),
     },
 )
+
+resource_fields_model = login_namespace.model(
+    "Resource",
+    {
+        "name": fields.String,
+    },
+)

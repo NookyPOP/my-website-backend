@@ -6,6 +6,7 @@ from apis.login.schemas import (
     person_model,
     resource_fields,
     type_info_model,
+    resource_fields_model,
 )
 from flask_restx import Resource, reqparse, marshal, inputs
 from apis.login.models import User, Emalis, Person
@@ -13,6 +14,7 @@ import json
 from werkzeug.datastructures import FileStorage
 import PyPDF2
 from werkzeug.utils import secure_filename
+from flask import request
 
 
 @login_namespace.route("/login")
@@ -98,6 +100,10 @@ class TypeInfo(Resource):
     # @login_namespace.param("rate", type=int, description="rate")
     # @login_namespace.param("name", type=str, description="name")
     @login_namespace.marshal_with(type_info_model)
+    @login_namespace.doc(
+        params={"name": "a name", "rate": "a rate", "User-Agent": "User-Agent"}
+    )
+    # @login_namespace.doc(responses={403: "not authorized"})
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument("rate", type=int, help="rate error")
@@ -114,7 +120,7 @@ class TypeInfo(Resource):
             "User-Agent": args["User-Agent"],
             "session_id": args["session_id"],
         }
-        print(args)
+        # print(args)
         return resposne, 200
 
     def post(self):
@@ -127,7 +133,7 @@ class TypeInfo(Resource):
         return args, 200
 
 
-@login_namespace.route("/upload")
+@login_namespace.route("/upload", doc={"deprecated": True})
 class Upload(Resource):
     def post(self):
         parser = reqparse.RequestParser()
@@ -143,3 +149,35 @@ class Upload(Resource):
         #     page = pdf_reader.pages[0]
         #     content = page.extract_text()
         #     print(content)
+
+
+parser = reqparse.RequestParser()
+parser.add_argument("id", type=int, required=True, help="An Id is required")
+parser.add_argument("name", type=str, required=True, help="Name is required")
+
+
+@login_namespace.route("/my-resource")
+@login_namespace.route(
+    "/other-my-resource/<int:id>",
+    doc={"description": "alias for /my-resource api", "deprecated": True},
+)
+class MyResource(Resource):
+    # @login_namespace.expect(resource_fields_model) is equivalent to body parameter of doc
+    # @login_namespace.response(200, "Success Request") is equivalent to reponses parameter of doc
+    @login_namespace.doc(body=resource_fields_model, responses={200: "Response ok"})
+    def post(self):
+        return {"name": "jack"}, 200
+
+    @login_namespace.expect(parser)  # requiered, the input fields are required
+    @login_namespace.doc(
+        params={
+            "id": {"description": "An Id", "required": True, "type": "integer"},
+            "name": {"description": "Name", "required": True, "type": "string"},
+        }
+    )
+    def get(self):
+        args = parser.parse_args()
+        id = args["id"]
+        name = args["name"]
+        login_namespace.logger.info("hello from login_name")
+        return {"id": id, "name": name}, 200

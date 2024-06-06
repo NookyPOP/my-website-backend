@@ -12,3 +12,5 @@ class Config(object):
     # config of database
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{SQL_USERNAME}:{SQL_PASSWORD}@{SQL_HOST}:{SQL_PORT}/{SQL_DB}?charset=utf8"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    RESTX_MASK_SWAGGER = False
+    RESTX_VALIDATE = False
