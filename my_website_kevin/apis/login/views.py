@@ -105,10 +105,15 @@ class TypeInfo(Resource):
     )
     # @login_namespace.doc(responses={403: "not authorized"})
     def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument("rate", type=int, help="rate error")
+        parser = reqparse.RequestParser(bundle_errors=True)
+        parser.add_argument("rate", type=int, help="rate error", required=True)
         parser.add_argument(
-            "name", type=str, help="name error", action="split", dest="public_name"
+            "name",
+            type=str,
+            help="name error",
+            action="split",
+            dest="public_name",
+            required=True,
         )
         parser.add_argument("User-Agent", location="headers")
         parser.add_argument("session_id", location="cookies")
@@ -136,11 +141,27 @@ class TypeInfo(Resource):
 @login_namespace.route("/upload", doc={"deprecated": True})
 class Upload(Resource):
     def post(self):
-        parser = reqparse.RequestParser()
+        parser = reqparse.RequestParser(bundle_errors=True)
         parser.add_argument("file", location="files", type=FileStorage, required=True)
         args = parser.parse_args()
         uploaded_file = args["file"]
-        print(uploaded_file)
+        # 获取上传文件的文件的字节流，以二进制形式读取，然后将其转换为字符串，而不是保存到磁盘里，然后读取
+        file_stream = uploaded_file.stream
+        # try:
+        #     # 读取文件
+        #     reader = PyPDF2.PdfReader(file_stream)
+        #     text = ""
+        #     for page in reader.pages:
+        #         text += page.extract_text() or ""
+        # login_namespace.logger.info("hello from login_name")
+        # return {"id": id, "name": name}, 200
+        #     print(text)
+        #     return {
+        #         "message": "File uploaded successfully",
+        #         "content": text,
+        #     }, 200
+        # except UnicodeDecodeError:
+        #     return {"message": "File could not be decoded as UTF-8."}, 400
 
         # with open(uploaded_file, "rb") as pdf_file:
         #     pdf_reader = PyPDF2.PdfReader(pdf_file)
@@ -179,5 +200,3 @@ class MyResource(Resource):
         args = parser.parse_args()
         id = args["id"]
         name = args["name"]
-        login_namespace.logger.info("hello from login_name")
-        return {"id": id, "name": name}, 200
