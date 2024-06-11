@@ -5,5 +5,5 @@ max-line-length = 200
 extend-ignore = E203, W503, E501
 
 ; ignore some errors
-ignore = E203, W503, F401,F841
-
+ignore = E203, W503,
+;  F401,F841
