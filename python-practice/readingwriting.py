@@ -3,7 +3,7 @@ import math
 import json
 
 
-def main():
+def main1():
     with open("./pyproject.toml", "r", encoding="utf-8") as f:
         print(f.read())
     with open("./pyproject.toml", "r", encoding="utf-8") as f:
