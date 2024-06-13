@@ -74,7 +74,52 @@ def main2():
     # queue.get()
 
 
+# 多进程 密集任务类型 计算密集
+
+
+def main3():
+    total = 0
+    start = time()
+    number_list = [x for x in range(1, 100000001)]
+    for i in number_list:
+        total += i
+    end = time()
+    print(total, (end - start))
+
+
+def handler_calulate(num_list, queue):
+    total = 0
+    for i in num_list:
+        total += i
+    queue.put(total)
+
+
+def main4():
+    number_list = [x for x in range(1, 100000001)]
+    queue = Queue()
+    processes = []
+    index = 0
+    start = time()
+
+    for _ in range(8):
+        p = Process(
+            target=handler_calulate, args=(number_list[index : index + 12500000], queue)
+        )
+        index += 12500000
+        processes.append(p)
+        p.start()
+    for p in processes:
+        p.join()
+    total = 0
+    while not queue.empty():
+        total += queue.get()
+    end = time()
+    print(total, (end - start))
+
+
 if __name__ == "__main__":
     # main()
     # main1()
-    main2()
+    # main2()
+    # main3()
+    main4()
