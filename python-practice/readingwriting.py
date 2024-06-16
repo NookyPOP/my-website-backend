@@ -49,10 +49,10 @@ finally:
 
 try:
     with open("./code.png", "rb") as f:
-        data = f.read()
+        data = f.read()  # 读取二进制数据
         print(type(data))
     with open("./code2.png", "wb") as f:
-        f.write(data)
+        f.write(data)  # 写入二进制数据
 except FileNotFoundError as e:
     print("file not found")
 except IOError as e:
