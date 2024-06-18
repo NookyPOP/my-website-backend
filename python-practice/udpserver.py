@@ -21,3 +21,7 @@ def main():
             break
 
     server.close()
+
+
+if __name__ == "__main__":
+    main()
