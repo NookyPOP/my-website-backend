@@ -41,7 +41,7 @@ def bubble_sort(items, comp=lambda x, y: x > y):
 # print(bubble_sort([1, 3, 4, 2, 1]))
 
 
-def bubble_sort(items, comp=lambda x, y: x > y):
+def bubble_sort1(items, comp=lambda x, y: x > y):
     """搅拌排序(冒泡排序升级版)"""
     """
     第一轮：从左到右第一个元素与第二个元素比较，大者交换到后面，然后第二个与第三个元素比较，也是大者放在后面，最后总会找到那个大的元素
@@ -106,15 +106,15 @@ def _merge_sort(items, comp):
 # 查找算法
 
 
-def bin_search(items, key):
+def bin_search(items, item):
     """折半查找"""
-    """ 如果key小于中间折半值，就往前推，然后再折半，然后再更中间值比较，如果继续小于继续推，如果大于中间折半值，就往后推 """
+    """ 如果key小于中间折半值，就往前推一个，然后再折半，然后再更中间值比较，如果继续小于继续推，如果大于中间折半值，就往后推 """
     start, end = 0, len(items) - 1
     while start <= end:
         mid = (start + end) // 2
-        if key > items[mid]:
+        if item > items[mid]:
             start = mid + 1
-        elif key < items[mid]:
+        elif item < items[mid]:
             end = mid - 1
         else:
             return mid
@@ -175,3 +175,38 @@ def voracity():
 
 
 voracity()
+# 常用算法
+# 穷举发
+
+
+def cal_chicken():
+    for x in range(0, 21):
+        for y in range(0, 34):
+            z = 100 - x - y
+            if 5 * x + y * 3 + z // 3 == 100 and z % 3 == 0:
+                print((x, y, z))
+                # return x, y, z
+
+
+def cal_fish():
+    fish = 6
+
+    while True:
+        total = fish
+        enough = True
+        for _ in range(5):
+            if (total - 1) % 5 == 0:
+                total = (total - 1) // 5 * 4
+            else:
+                enough = False
+                break
+        if enough:
+            print(fish)
+            break
+        fish += 5
+    return fish
+
+
+# print(cal_chicken())
+
+print(cal_fish())
