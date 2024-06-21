@@ -121,4 +121,57 @@ def bin_search(items, key):
     return -1
 
 
-bin_search([1, 2, 3, 4, 5, 6, 7, 8, 9], 3)
+# bin_search([1, 2, 3, 4, 5, 6, 7, 8, 9], 3)
+
+# 贪婪算法
+"""
+贪婪法：在对问题求解时，总是做出在当前看来是最好的选择，不追求最优解，快速找到满意解。
+关键点，找出这个问题中的产生最大利益的点
+输入：
+20 6
+电脑 200 20
+收音机 20 4
+钟 175 10
+花瓶 50 2
+书 10 1
+油画 90 9
+"""
+
+
+class Thing(object):
+    def __init__(self, name, price, weight) -> None:
+        self.name = name
+        self.price = price
+        self.weight = weight
+
+    @property
+    def value(self):
+        return self.price / self.weight
+
+
+def input_thing():
+    name, price, weight = input("输入被偷的这个东西的名字，价钱，重量：").split()
+    return (name, int(price), int(weight))
+
+
+def voracity():
+    max_weight, max_num = map(int, input("小偷能偷的东西的最多的重量和数量：").split())
+    total_thing = []
+    for _ in range(max_num):
+        thing = Thing(*input_thing())
+        total_thing.append(thing)
+    total_thing.sort(key=lambda x: x.value, reverse=True)
+    print(total_thing)
+
+    total_price = 0
+    total_weight = 0
+
+    for thing in total_thing:
+        if thing.weight + total_weight <= max_weight:
+            print(f"{thing.name} {thing.value} {thing.price} {thing.weight} stolen")
+            total_price += thing.price
+            total_weight += thing.weight
+    print(f"toal price {total_price}")
+
+
+voracity()
