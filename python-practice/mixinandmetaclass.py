@@ -79,7 +79,7 @@ print(isinstance(object, object))
 print(isinstance(type, object))
 print(isinstance(type, type))
 
-print(issubclass(list, object)) # True
+print(issubclass(list, object))  # True
 print(issubclass(object, object))  # True
 print(issubclass(type, type))  # True
 print(issubclass(type, object))  # True
@@ -94,3 +94,67 @@ class MyClass(metaclass=MyMetaClass):
 
 
 # print(MyClass, type(MyClass), MyMetaClass)
+
+
+class MyIterator:
+    def __init__(self, limit) -> None:
+        self.limit = limit
+        self.count = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.count < self.limit:
+            self.count += 1
+            return self.count
+
+        else:
+            raise StopIteration
+
+
+# use the iterator
+
+my_iter = MyIterator(5)
+print(my_iter, type(my_iter))
+print(next(my_iter))  # 1
+print(next(my_iter))  # 2
+
+for num in my_iter:
+    print(num)
+
+
+def fib(num):
+    # 定义斐波那契数列,生成器来实现
+    a, b = 0, 1
+    for _ in range(num):
+        a, b = b, a + b
+        yield a
+
+
+#
+gen = fib(5)
+print(gen)  # <generator object fib at 0x102ad66c0>
+next(gen)  # 1
+next(gen)  # 1
+print(next(gen))  # 2
+print(next(gen))  # 3
+for num in gen:
+    print(num)  # 1 1 2 3 4
+
+
+def calc_avg():
+    """流式计算平均值"""
+    total, counter = 0, 0
+    avg_value = None
+    while True:
+        value = yield avg_value
+        total, counter = total + value, counter + 1
+        avg_value = total / counter
+
+
+gen = calc_avg()
+next(gen)
+print(gen.send(11))
+print(gen.send(20))
+print(gen.send(30))
