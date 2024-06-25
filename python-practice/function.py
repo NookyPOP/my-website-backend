@@ -114,7 +114,7 @@ def record_time(fn):
 @record_time
 # @record_time，不使用参数花的装饰器，会自动执行装饰器函数，把被装饰的函数会作为参数传入， 在装饰器函数里执行原函数
 # @record_time("11") 使用参数化的装饰器，会先执行这个装饰器函数，然后再自动执行装饰器返回的函数
-def download_task(filename):
+def download_task1(filename):
     print("start process, and process number is [%d]")
     print("start downloading %s" % filename)
     time_download = randint(2, 5)
@@ -124,7 +124,7 @@ def download_task(filename):
     return time_download
 
 
-# download_task("love.pdf")
+# download_task1("love.pdf")
 
 
 class Record:

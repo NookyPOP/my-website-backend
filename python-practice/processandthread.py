@@ -117,9 +117,101 @@ def main4():
     print(total, (end - start))
 
 
+import os
+import glob
+import threading
+from PIL import Image
+
+PREFIX = "python-practice/thumbnails"
+
+
+def generate_thumbnail(infile, size):
+    file, ext = os.path.splitext(infile)
+    file = file[file.rfind("/") + 1 :]
+    outfile = f"{PREFIX}/{file}_{size[0]}_{size[1]}.{ext}"
+    img = Image.open(infile)
+    img.thumbnail(size)
+    img.save(outfile, format)
+
+
+def main5():
+    if not os.path.exists(PREFIX):
+        os.mkdir(PREFIX)
+    for infile in glob.glob("python-practice/*.png"):
+        for size in (32, 64, 128, 256):
+            threading.Thread(
+                target=generate_thumbnail, args=(infile, (size, size))
+            ).start()
+
+
+"""
+多个线程竞争一个资源 - 保护临界资源 - 锁（Lock/RLock）
+多个线程竞争多个资源（线程数>资源数） - 信号量（Semaphore）
+多个线程的调度 - 暂停线程执行/唤醒等待中的线程 - Condition
+"""
+from concurrent.futures import ThreadPoolExecutor
+from random import randint
+from time import sleep
+
+import threading
+
+
+class Account:
+    """银行账户"""
+
+    def __init__(self, balance=0):
+        self.balance = balance  # 一个资源
+        lock = threading.RLock()  # 一个锁来保护临近资源
+        self.condition = threading.Condition(lock)  # 一个条件变量来暂停/唤醒线程
+
+    def withdraw(self, money):
+        """取钱"""
+        with self.condition:
+            while money > self.balance:
+                self.condition.wait()  # 阻塞线程 直到有钱
+            new_balance = self.balance - money
+            sleep(0.001)
+            self.balance = new_balance
+
+    def deposit(self, money):
+        """存钱"""
+        with self.condition:
+            new_balance = self.balance + money
+            sleep(0.001)
+            self.balance = new_balance
+            self.condition.notify_all()  # 唤醒阻塞的线程
+
+
+def add_money(account):
+    while True:
+        money = randint(5, 10)
+        account.deposit(money)
+        print(threading.current_thread().name, ":", money, "====>", account.balance)
+        sleep(0.5)
+
+
+def sub_money(account):
+    while True:
+        money = randint(10, 30)
+        account.withdraw(money)
+        print(threading.current_thread().name, ":", money, "<====", account.balance)
+        sleep(1)
+
+
+def main6():
+    account = Account()
+    with ThreadPoolExecutor(max_workers=15) as pool:
+        for _ in range(5):
+            pool.submit(add_money, account)
+        for _ in range(10):
+            pool.submit(sub_money, account)
+
+
 if __name__ == "__main__":
     # main()
     # main1()
     # main2()
     # main3()
-    main4()
+    # main4()
+    # main5()
+    main6()
