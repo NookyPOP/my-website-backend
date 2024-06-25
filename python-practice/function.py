@@ -175,12 +175,23 @@ def singleton(cls):
     return wrapper
 
 
-@singleton
+# @singleton
 class Person:
     def __init__(self, name) -> None:
         self.name = name
 
+    def __str__(self) -> str:
+        return self.name
 
-p1 = Person("kevin1")
-p2 = Person("kevin2")
-print(p1 is p2)
+    def __dict__(self):
+        # strs= f'{'name':self.name}'
+        # print id
+        print(id(self.name))
+        return {"name": self.name}
+
+
+p1 = Person("kevin1")  # {name:kevin}
+# p2 = Person("kevin2")
+# print(p1 is p2)
+
+print(p1, p1.__dict__)
