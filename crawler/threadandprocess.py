@@ -53,5 +53,61 @@ def main1():
             print("%d is prime: %s" % (number, prime))
 
 
+# process
+
+from multiprocessing import Process, Queue
+import time
+
+counter = 0
+
+
+def sub_stask(print_text):
+    global counter
+    while counter < 50:
+        counter += 1
+        print(print_text, end="", flush=True)
+        time.sleep(0.1)
+
+
+def main2():
+    p1 = Process(target=sub_stask, args=("Ping",))
+    p2 = Process(target=sub_stask, args=("Pong",))
+
+    p1.start()
+    p2.start()
+
+    p1.join()
+    p2.join()
+
+
+# 使用queue来实现进程间通信
+def counter_task(text, queue):
+    counter = queue.get()
+    while counter < 50:
+        print(text, end="", flush=True)
+        counter += 1
+        queue.put(counter)
+        time.sleep(0.1)
+        counter = queue.get()
+
+
+def main3():
+    queue = Queue()
+    queue.put(0)
+    p1 = Process(target=counter_task, args=("Ping", queue))
+    p2 = Process(target=counter_task, args=("Pong", queue))
+
+    p1.start()
+    p2.start()
+
+    p1.join()
+    p2.join()
+    while p1.is_alive() and p2.is_alive():
+        print(11)
+    queue.put(50)
+
+
 if __name__ == "__main__":
-    main1()
+    # main1()
+    # main2()
+    main3()
