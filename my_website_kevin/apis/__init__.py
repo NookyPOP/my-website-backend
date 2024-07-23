@@ -1,5 +1,5 @@
 from flask_restx import Api
-from apis.login.views import login_namespace as ns
+from my_website_kevin.apis.login.views import login_namespace as ns
 
 api = Api(
     title="My Title",

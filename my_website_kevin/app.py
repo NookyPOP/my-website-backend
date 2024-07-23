@@ -1,9 +1,9 @@
 from flask import Flask
 from flask_login import LoginManager
-from apis.login.services import User
-from apis import api
-from config import Config
-from database import db
+from my_website_kevin.apis.login.services import User
+from my_website_kevin.apis import api
+from my_website_kevin.config import Config
+from my_website_kevin.database import db
 import logging
 
 # configure root logger

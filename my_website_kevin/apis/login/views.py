@@ -1,4 +1,4 @@
-from apis.login.schemas import (
+from my_website_kevin.apis.login.schemas import (
     login_model,
     login_namespace,
     user_model,
@@ -9,7 +9,7 @@ from apis.login.schemas import (
     resource_fields_model,
 )
 from flask_restx import Resource, reqparse, marshal, inputs
-from apis.login.models import User, Emalis, Person
+from my_website_kevin.apis.login.models import User, Emalis, Person
 import json
 from werkzeug.datastructures import FileStorage
 import PyPDF2

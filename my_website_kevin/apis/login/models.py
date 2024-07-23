@@ -1,4 +1,4 @@
-from database import db
+from my_website_kevin.database import db
 
 
 class User(db.Model):
