@@ -15,8 +15,22 @@ from werkzeug.datastructures import FileStorage
 import PyPDF2
 from werkzeug.utils import secure_filename
 from flask import request
+from my_website_kevin.apis.login.services import LoginService
 
 
+@login_namespace.route("/login")
+class Login(Resource):
+    @login_namespace.expect(login_model)
+    def post(self):
+        login_user = LoginService(
+            username=login_namespace.payload["username"],
+            password=login_namespace.payload["password"],
+        )
+
+        return {"message": "Login successful"}, 200
+
+
+""" 
 @login_namespace.route("/login")
 class Login(Resource):
     @login_namespace.expect(login_model)
@@ -200,3 +214,4 @@ class MyResource(Resource):
         args = parser.parse_args()
         id = args["id"]
         name = args["name"]
+ """

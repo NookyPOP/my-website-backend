@@ -4,6 +4,7 @@ from my_website_kevin.apis.login.services import User
 from my_website_kevin.apis import api
 from my_website_kevin.config import Config
 from my_website_kevin.database import db
+from flask_jwt_extended import JWTManager
 import logging
 
 # configure root logger
@@ -12,6 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 config = Config()
 login_manager = LoginManager()
+jwt = JWTManager()
 
 
 def create_app():
@@ -22,6 +24,7 @@ def create_app():
     api.init_app(app)
 
     db.init_app(app)
+    jwt.init_app(app)
     # 用户登陆管理
     login_manager.init_app(app)
     return app
