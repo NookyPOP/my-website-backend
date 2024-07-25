@@ -2,6 +2,7 @@ from flask_login import login_user, UserMixin, logout_user
 from my_website_kevin.database import db
 from my_website_kevin.apis.login.models import UserAuth
 from sqlalchemy import func
+from flask_jwt_extended import create_access_token
 
 
 class User(UserMixin):
@@ -45,14 +46,46 @@ class LoginService:
         return self
 
     def login(self):
-        self.validate_auth_user()
+        user = self.validate_auth_user()
         if self.auth_status:
-            _user = User(self.username)
-            login_user(_user)
-
-        return self.auth_status, self.message
+            access_token = create_access_token(identity=user.id)
+        return self.auth_status, self.message, access_token
 
     def logout(self):
         user = User(self.username, self.password)
         logout_user(user)
+        return self
+
+
+class RegistryService:
+    def __init__(self, username, password, email, mobile, sex) -> None:
+        self.username = username
+        self.password = password
+        self.email = email
+        self.mobile = mobile
+        self.sex = sex
+        self.message = ""
+        self.access_token = ""
+        self.status_code = 0
+
+    def registry(self):
+        user = db.session.query(UserAuth).filter_by(username=UserAuth.username).first()
+        if user.id:
+            self.message = "User already exists"
+            self.status_code = 400
+            return self
+        user = db.session.query(UserAuth).filter_by(email=UserAuth.email).first()
+        if user.id:
+            self.message = "Email already exists"
+            self.status_code = 400
+            return self
+        user = UserAuth(
+            username=self.username, email=self.email, mobile=self.mobile, sex=self.sex
+        )
+        user.set_password(password=self.password)
+        db.session.add(user)
+        db.session.commit()
+        if user.id:
+            self.access_token = create_access_token(identity=user.id)
+            self.status_code = 200
         return self

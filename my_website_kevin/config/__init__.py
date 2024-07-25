@@ -5,7 +5,7 @@ class Config(object):
     DEBUG = True
     SQL_HOST = "101.133.159.192"
     SQL_USERNAME = "root"
-    SQL_PASSWORD = urllib.parse.quote_plus("Root123@")
+    SQL_PASSWORD = urllib.parse.quote_plus("Root1234@")
     SQL_PORT = "3306"
     SQL_DB = "practice"
     JSON_AS_ASCII = False

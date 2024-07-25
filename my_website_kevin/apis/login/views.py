@@ -1,33 +1,73 @@
 from my_website_kevin.apis.login.schemas import (
-    login_model,
     login_namespace,
-    user_model,
-    emails,
-    person_model,
-    resource_fields,
-    type_info_model,
-    resource_fields_model,
+    login_model,
+    registry_user_model,
 )
+
 from flask_restx import Resource, reqparse, marshal, inputs
-from my_website_kevin.apis.login.models import User, Emalis, Person
-import json
-from werkzeug.datastructures import FileStorage
-import PyPDF2
-from werkzeug.utils import secure_filename
-from flask import request
-from my_website_kevin.apis.login.services import LoginService
+
+# from my_website_kevin.apis.login.models import User, Emalis, Person
+# import json
+# from werkzeug.datastructures import FileStorage
+# import PyPDF2
+# from werkzeug.utils import secure_filename
+from flask import jsonify
+from my_website_kevin.apis.login.services import LoginService, RegistryService
+
+
+@login_namespace.route("/registry")
+class Registry(Resource):
+    @login_namespace.param("sex", type=str, description="Sex of username")
+    @login_namespace.param("email", type=str, description="Email of username")
+    @login_namespace.param("mobile", type=str, description="Mobile of username")
+    @login_namespace.param("password", type=str, description="Password of username")
+    @login_namespace.param("username", type=str, description="Name of Resgistry")
+    @login_namespace.marshal_with(registry_user_model)
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("username", type=str)
+        parser.add_argument("password", type=str)
+        parser.add_argument("email", type=str)
+        parser.add_argument("mobile", type=str)
+        parser.add_argument("sex", type=str)
+        args = parser.parse_args()
+
+        registry_user = RegistryService(
+            username=args["username"],
+            password=args["password"],
+            email=args["email"],
+            mobile=args["mobile"],
+            sex=args["sex"],
+        )
+        message, access_token, status_code = registry_user.registry()
+        if status_code == 400:
+            return jsonify({"message": message}), status_code
+
+        return jsonify(access_token=access_token), status_code
 
 
 @login_namespace.route("/login")
 class Login(Resource):
-    @login_namespace.expect(login_model)
+    @login_namespace.param("username", type=str, description="Name of login")
+    # indicate the username on the swagger_ui
+    @login_namespace.param("password", type=str, description="Password")
+    @login_namespace.marshal_with(login_model)
     def post(self):
+        parser = reqparse.RequestParser()
+
+        parser.add_argument("username", type=str)
+        parser.add_argument("password", type=str)
+        args = parser.parse_args()
+
         login_user = LoginService(
-            username=login_namespace.payload["username"],
-            password=login_namespace.payload["password"],
+            username=args["username"],
+            password=args["password"],
         )
 
-        return {"message": "Login successful"}, 200
+        if not login_user.auth_status:
+            return jsonify({"message": login_user.message}), 401
+
+        return jsonify(access_token=login_user.access_token), 200
 
 
 """ 

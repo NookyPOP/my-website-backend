@@ -10,6 +10,17 @@ login_model = login_namespace.model(
     },
 )
 
+registry_user_model = login_namespace.model(
+    "RegistryUser",
+    {
+        "username": fields.String(required=True, description="Username"),
+        "password": fields.String(requiered=True, description="Password"),
+        "email": fields.String(required=True, description="Email"),
+        "mobile": fields.String(required=True, description="Mobile"),
+        "sex": fields.String(required=True, description="Sex"),
+    },
+)
+
 user_model = login_namespace.model(
     "User",
     {
