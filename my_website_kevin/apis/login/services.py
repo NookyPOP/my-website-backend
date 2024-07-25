@@ -70,15 +70,15 @@ class RegistryService:
 
     def registry(self):
         user = db.session.query(UserAuth).filter_by(username=UserAuth.username).first()
-        if user.id:
+        if user and user.id:
             self.message = "User already exists"
             self.status_code = 400
-            return self
+            return self.message, self.status_code, self.access_token
         user = db.session.query(UserAuth).filter_by(email=UserAuth.email).first()
-        if user.id:
+        if user and user.id:
             self.message = "Email already exists"
             self.status_code = 400
-            return self
+            return self.message, self.status_code, self.access_token
         user = UserAuth(
             username=self.username, email=self.email, mobile=self.mobile, sex=self.sex
         )
@@ -87,5 +87,5 @@ class RegistryService:
         db.session.commit()
         if user.id:
             self.access_token = create_access_token(identity=user.id)
-            self.status_code = 200
-        return self
+            self.status_code = 201
+        return self.message, self.status_code, self.access_token

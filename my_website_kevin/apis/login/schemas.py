@@ -21,6 +21,15 @@ registry_user_model = login_namespace.model(
     },
 )
 
+response_model = login_namespace.model(
+    "Response",
+    {
+        "username": fields.String(required=True, description="Username"),
+        "message": fields.String(required=True, description="Message"),
+        "access_token": fields.String(required=True, description="Access token"),
+    },
+)
+
 user_model = login_namespace.model(
     "User",
     {

@@ -1,10 +1,10 @@
 from flask import Flask
 from flask_login import LoginManager
+from flask_jwt_extended import JWTManager
 from my_website_kevin.apis.login.services import User
 from my_website_kevin.apis import api
 from my_website_kevin.config import Config
-from my_website_kevin.database import db
-from flask_jwt_extended import JWTManager
+from my_website_kevin.database import db, migrate
 import logging
 
 # configure root logger
@@ -24,6 +24,7 @@ def create_app():
     api.init_app(app)
 
     db.init_app(app)
+    migrate.init_app(app, db)
     jwt.init_app(app)
     # 用户登陆管理
     login_manager.init_app(app)

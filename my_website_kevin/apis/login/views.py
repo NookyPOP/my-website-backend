@@ -2,6 +2,7 @@ from my_website_kevin.apis.login.schemas import (
     login_namespace,
     login_model,
     registry_user_model,
+    response_model,
 )
 
 from flask_restx import Resource, reqparse, marshal, inputs
@@ -17,12 +18,22 @@ from my_website_kevin.apis.login.services import LoginService, RegistryService
 
 @login_namespace.route("/registry")
 class Registry(Resource):
-    @login_namespace.param("sex", type=str, description="Sex of username")
-    @login_namespace.param("email", type=str, description="Email of username")
-    @login_namespace.param("mobile", type=str, description="Mobile of username")
-    @login_namespace.param("password", type=str, description="Password of username")
-    @login_namespace.param("username", type=str, description="Name of Resgistry")
-    @login_namespace.marshal_with(registry_user_model)
+    @login_namespace.param(
+        "sex", required=True, type=str, description="Sex of username"
+    )
+    @login_namespace.param(
+        "email", required=True, type=str, description="Email of username"
+    )
+    @login_namespace.param(
+        "mobile", required=True, type=str, description="Mobile of username"
+    )
+    @login_namespace.param(
+        "password", required=True, type=str, description="Password of username"
+    )
+    @login_namespace.param(
+        "username", required=True, type=str, description="Name of Resgistry"
+    )
+    @login_namespace.marshal_with(response_model)  # response structure
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument("username", type=str)
@@ -43,7 +54,16 @@ class Registry(Resource):
         if status_code == 400:
             return jsonify({"message": message}), status_code
 
-        return jsonify(access_token=access_token), status_code
+        user_dict = {
+            "username": args["username"],
+            "email": args["email"],
+            "mobile": args["mobile"],
+            "sex": args["sex"],
+            "message": message,
+            "access_token": access_token,
+        }
+        print(user_dict)
+        return jsonify(user_dict), status_code
 
 
 @login_namespace.route("/login")
@@ -51,7 +71,7 @@ class Login(Resource):
     @login_namespace.param("username", type=str, description="Name of login")
     # indicate the username on the swagger_ui
     @login_namespace.param("password", type=str, description="Password")
-    @login_namespace.marshal_with(login_model)
+    @login_namespace.marshal_with(login_model)  #
     def post(self):
         parser = reqparse.RequestParser()
 
