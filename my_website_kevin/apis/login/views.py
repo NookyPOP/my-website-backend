@@ -43,7 +43,6 @@ class Registry(Resource):
         parser.add_argument("mobile", type=str)
         parser.add_argument("sex", type=str)
         args = parser.parse_args()
-        print(args)
         registry_user = RegistryService(
             username=args["username"],
             password=args["password"],
@@ -60,7 +59,6 @@ class Registry(Resource):
             "message": message,
             "access_token": access_token,
         }
-        print(message, status_code, access_token)
         return user_dict, status_code
 
 

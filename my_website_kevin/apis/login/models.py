@@ -11,7 +11,7 @@ class UserAuth(db.Model):
     sex = db.Column(db.String(80), unique=False, nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-    password_hash = db.Column(db.String(80))
+    password_hash = db.Column(db.String(255))
 
     def __repr__(self):
         return f"<User {self.username}>"

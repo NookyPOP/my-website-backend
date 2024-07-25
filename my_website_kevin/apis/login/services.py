@@ -74,13 +74,6 @@ class RegistryService:
 
     def registry(self):
         user = db.session.query(UserAuth).filter_by(username=self.username).first()
-        print(
-            user,
-            UserAuth.username,
-            self.username,
-            db.session.query(UserAuth).filter_by(username=UserAuth.username),
-            11,
-        )
         if user and user.id:
             self.message = "User already exists"
             self.status_code = 400
