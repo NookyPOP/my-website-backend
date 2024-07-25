@@ -14,6 +14,7 @@ from flask_restx import Resource, reqparse, marshal, inputs
 # from werkzeug.utils import secure_filename
 from flask import jsonify
 from my_website_kevin.apis.login.services import LoginService, RegistryService
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 
 @login_namespace.route("/registry")
@@ -42,7 +43,7 @@ class Registry(Resource):
         parser.add_argument("mobile", type=str)
         parser.add_argument("sex", type=str)
         args = parser.parse_args()
-
+        print(args)
         registry_user = RegistryService(
             username=args["username"],
             password=args["password"],
@@ -50,10 +51,7 @@ class Registry(Resource):
             mobile=args["mobile"],
             sex=args["sex"],
         )
-        message, access_token, status_code = registry_user.registry()
-        if status_code == 400:
-            return jsonify({"message": message}), status_code
-
+        message, status_code, access_token = registry_user.registry()
         user_dict = {
             "username": args["username"],
             "email": args["email"],
@@ -62,16 +60,16 @@ class Registry(Resource):
             "message": message,
             "access_token": access_token,
         }
-        print(user_dict)
-        return jsonify(user_dict), status_code
+        print(message, status_code, access_token)
+        return user_dict, status_code
 
 
 @login_namespace.route("/login")
 class Login(Resource):
+    @login_namespace.param("password", type=str, description="Password")
     @login_namespace.param("username", type=str, description="Name of login")
     # indicate the username on the swagger_ui
-    @login_namespace.param("password", type=str, description="Password")
-    @login_namespace.marshal_with(login_model)  #
+    @login_namespace.marshal_with(response_model)  #
     def post(self):
         parser = reqparse.RequestParser()
 
@@ -83,11 +81,35 @@ class Login(Resource):
             username=args["username"],
             password=args["password"],
         )
-
+        message, auth_status, access_token = login_user.login()
+        user_dict = {
+            "username": args["username"],
+            "message": message,
+            "access_token": access_token,
+        }
         if not login_user.auth_status:
-            return jsonify({"message": login_user.message}), 401
+            return user_dict, 401
 
-        return jsonify(access_token=login_user.access_token), 200
+        return user_dict, 200
+
+
+@login_namespace.route("/logout")
+class Logout(Resource):
+    @jwt_required()
+    def post(self):
+        user = get_jwt_identity()
+        login_user = LoginService(
+            username=user["username"],
+            password=user["password"],
+        )
+        login_user.logout()
+        return {"message": "Logout successful"}, 200
+
+
+# @login_namespace.route("/protected")
+# class
+# user = User.query.get(current_user_id)
+# return jsonify(logged_in_as=user.username), 200
 
 
 """ 

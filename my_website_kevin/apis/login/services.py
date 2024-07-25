@@ -33,23 +33,27 @@ class LoginService:
         self.username = username
         self.password = password
         self.auth_status = False
+        self.access_token = ""
         self.message = ""
 
     def validate_auth_user(self):
-        user = db.session.query(UserAuth).filter_by(username=UserAuth.username).first()
-        if user and user.check_password(self.password):  # type: ignore
+        user = db.session.query(UserAuth).filter_by(username=self.username).first()
+        if user and user.check_password(self.password):
             self.auth_status = True
             self.message = "Login successful"
+        elif user and not user.check_password(self.password):
+            self.auth_status = False
+            self.message = "Wrong password"
         else:
             self.auth_status = False
             self.message = "User does not exist"
-        return self
+        return user
 
     def login(self):
         user = self.validate_auth_user()
         if self.auth_status:
-            access_token = create_access_token(identity=user.id)
-        return self.auth_status, self.message, access_token
+            self.access_token = create_access_token(identity=user.id)
+        return self.message, self.auth_status, self.access_token
 
     def logout(self):
         user = User(self.username, self.password)
@@ -69,12 +73,19 @@ class RegistryService:
         self.status_code = 0
 
     def registry(self):
-        user = db.session.query(UserAuth).filter_by(username=UserAuth.username).first()
+        user = db.session.query(UserAuth).filter_by(username=self.username).first()
+        print(
+            user,
+            UserAuth.username,
+            self.username,
+            db.session.query(UserAuth).filter_by(username=UserAuth.username),
+            11,
+        )
         if user and user.id:
             self.message = "User already exists"
             self.status_code = 400
             return self.message, self.status_code, self.access_token
-        user = db.session.query(UserAuth).filter_by(email=UserAuth.email).first()
+        user = db.session.query(UserAuth).filter_by(email=self.email).first()
         if user and user.id:
             self.message = "Email already exists"
             self.status_code = 400
@@ -88,4 +99,5 @@ class RegistryService:
         if user.id:
             self.access_token = create_access_token(identity=user.id)
             self.status_code = 201
+            self.message = "Registry successful"
         return self.message, self.status_code, self.access_token

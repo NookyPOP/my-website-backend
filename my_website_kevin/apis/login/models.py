@@ -7,14 +7,14 @@ class UserAuth(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    mobile = db.Column(db.String(80), unique=True, nullable=False)
-    sex = db.Column(db.String(80), unique=True, nullable=False)
+    mobile = db.Column(db.String(80), unique=False, nullable=False)
+    sex = db.Column(db.String(80), unique=False, nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     password_hash = db.Column(db.String(80))
 
     def __repr__(self):
-        return f"<User {self.nickname}>"
+        return f"<User {self.username}>"
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
