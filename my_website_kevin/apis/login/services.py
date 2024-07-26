@@ -5,7 +5,8 @@ from sqlalchemy import func
 from flask_jwt_extended import create_access_token, get_jwt
 from datetime import datetime, timezone, timedelta
 from my_website_kevin.apis.login.models import JWTToken
-from my_website_kevin.utils import generate_random_string
+import my_website_kevin.utils as utils
+from dateutil import parser
 
 
 class User(UserMixin):
@@ -55,7 +56,7 @@ class LoginService:
     def login(self):
         user = self.validate_auth_user()
         if self.auth_status:
-            self.access_token = access_token.create_token(user.id)
+            self.access_token = access_token.create_token(user)
         return self.message, self.auth_status, self.access_token
 
     def logout(self):
@@ -98,13 +99,16 @@ class RegistryService:
 
 
 class AccessTokenService:
-    def create_token(self, user_id):
+    def create_token(self, user):
         expires = timedelta(days=1)
-        access_token = create_access_token(identity=user_id, expires_delta=expires)
-        exp = datetime.now(timezone.utc) + expires
-        expired_at = datetime.fromtimestamp(exp, tz=timezone.utc)
-        jwt_id = generate_random_string()
-        jwt_new_token = JWTToken(jti=jwt_id, user_id=user_id, expired_at=expired_at)
+        access_token = create_access_token(
+            identity=user, expires_delta=expires, additional_claims={"claim": "value"}
+        )
+        exp = str(datetime.now(timezone.utc) + expires)
+        timestamp = int(parser.isoparse(exp).timestamp())
+        expired_at = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+        jwt_id = utils.generate_random_string()
+        jwt_new_token = JWTToken(jti=jwt_id, user_id=user.id, expired_at=expired_at)
 
         db.session.add(jwt_new_token)
         db.session.commit()

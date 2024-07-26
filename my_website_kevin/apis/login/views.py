@@ -12,9 +12,9 @@ from flask_restx import Resource, reqparse, marshal, inputs
 # from werkzeug.datastructures import FileStorage
 # import PyPDF2
 # from werkzeug.utils import secure_filename
-from flask import jsonify
+from flask import jsonify, make_response
 from my_website_kevin.apis.login.services import LoginService, RegistryService
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import jwt_required, current_user
 
 
 @login_namespace.route("/registry")
@@ -94,7 +94,7 @@ class Login(Resource):
 class Logout(Resource):
     @jwt_required()
     def post(self):
-        user = get_jwt_identity()
+        user = current_user
         login_user = LoginService(
             username=user["username"],
             password=user["password"],
@@ -102,6 +102,31 @@ class Logout(Resource):
         login_user.logout()
         return {"message": "Logout successful"}, 200
 
+
+@login_namespace.route("/who_am_i")
+class WhoAmI(Resource):
+    @jwt_required()
+    def get(self):
+        user = current_user
+        print(1111, user)
+        # return jsonify({"id": user.id, "username": user.username}) return a flask response with a json object
+        # return {"id": user.id, "username": user.username}, 200 return a flask response with a json object and a status code
+        response = make_response(
+            jsonify({"id": user.id, "username": user.username}), 201
+        )
+        # use the make_response function to add headers
+        response.headers["Content-Type"] = "application/json"
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["X-Parachutes"] = "parachutes are cool"
+        return response
+
+
+# def protected():
+#     # We can now access our sqlalchemy User object via `current_user`.
+#     return jsonify(
+#         id=current_user.id,
+#         username=current_user.username,
+#     )
 
 # @login_namespace.route("/protected")
 # class
