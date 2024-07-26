@@ -50,14 +50,13 @@ class Registry(Resource):
             mobile=args["mobile"],
             sex=args["sex"],
         )
-        message, status_code, access_token = registry_user.registry()
+        message, status_code = registry_user.registry()
         user_dict = {
             "username": args["username"],
             "email": args["email"],
             "mobile": args["mobile"],
             "sex": args["sex"],
             "message": message,
-            "access_token": access_token,
         }
         return user_dict, status_code
 

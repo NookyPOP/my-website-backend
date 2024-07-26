@@ -1,5 +1,6 @@
 from my_website_kevin.database import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 
 class UserAuth(db.Model):
@@ -21,6 +22,25 @@ class UserAuth(db.Model):
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
+
+
+class JWTToken(db.Model):
+    __tablename__ = "jwt_token"
+
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(36), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user_list.id"), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    expired_at = db.Column(db.DateTime, nullable=False)
+    revoked = db.Column(db.Boolean, nullable=False, default=False)
+
+    def __repr__(self):
+        return f"<User {self.jti}>"
+
+    def __init__(self, jti, user_id, expired_at):
+        self.jti = jti
+        self.expired_at = expired_at
+        self.user_id = user_id
 
 
 class Emalis(db.Model):

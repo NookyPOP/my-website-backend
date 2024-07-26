@@ -2,7 +2,10 @@ from flask_login import login_user, UserMixin, logout_user
 from my_website_kevin.database import db
 from my_website_kevin.apis.login.models import UserAuth
 from sqlalchemy import func
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt
+from datetime import datetime, timezone, timedelta
+from my_website_kevin.apis.login.models import JWTToken
+from my_website_kevin.utils import generate_random_string
 
 
 class User(UserMixin):
@@ -52,7 +55,7 @@ class LoginService:
     def login(self):
         user = self.validate_auth_user()
         if self.auth_status:
-            self.access_token = create_access_token(identity=user.id)
+            self.access_token = access_token.create_token(user.id)
         return self.message, self.auth_status, self.access_token
 
     def logout(self):
@@ -69,7 +72,6 @@ class RegistryService:
         self.mobile = mobile
         self.sex = sex
         self.message = ""
-        self.access_token = ""
         self.status_code = 0
 
     def registry(self):
@@ -77,12 +79,12 @@ class RegistryService:
         if user and user.id:
             self.message = "User already exists"
             self.status_code = 400
-            return self.message, self.status_code, self.access_token
+            return self.message, self.status_code
         user = db.session.query(UserAuth).filter_by(email=self.email).first()
         if user and user.id:
             self.message = "Email already exists"
             self.status_code = 400
-            return self.message, self.status_code, self.access_token
+            return self.message, self.status_code
         user = UserAuth(
             username=self.username, email=self.email, mobile=self.mobile, sex=self.sex
         )
@@ -90,7 +92,35 @@ class RegistryService:
         db.session.add(user)
         db.session.commit()
         if user.id:
-            self.access_token = create_access_token(identity=user.id)
             self.status_code = 201
             self.message = "Registry successful"
-        return self.message, self.status_code, self.access_token
+        return self.message, self.status_code
+
+
+class AccessTokenService:
+    def create_token(self, user_id):
+        expires = timedelta(days=1)
+        access_token = create_access_token(identity=user_id, expires_delta=expires)
+        exp = datetime.now(timezone.utc) + expires
+        expired_at = datetime.fromtimestamp(exp, tz=timezone.utc)
+        jwt_id = generate_random_string()
+        jwt_new_token = JWTToken(jti=jwt_id, user_id=user_id, expired_at=expired_at)
+
+        db.session.add(jwt_new_token)
+        db.session.commit()
+        return access_token
+
+    def revoke_token(self, jti):
+        jwt_token = db.session.query(JWTToken).filter_by(jti=jti).first()
+        if jwt_token and not jwt_token.revoked:
+            jwt_token.revoked = True
+            db.session.commit()
+            return True
+        return False
+
+    def is_token_revoked(self, jti):
+        jwt_token = db.session.query(JWTToken).filter_by(jti=jti).first()
+        return jwt_token.revoked if jwt_token else False
+
+
+access_token = AccessTokenService()
