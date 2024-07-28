@@ -59,11 +59,6 @@ class LoginService:
             self.access_token = access_token.create_token(user)
         return self.message, self.auth_status, self.access_token
 
-    def logout(self):
-        user = User(self.username, self.password)
-        logout_user(user)
-        return self
-
 
 class RegistryService:
     def __init__(self, username, password, email, mobile, sex) -> None:
@@ -109,22 +104,32 @@ class AccessTokenService:
         expired_at = datetime.fromtimestamp(timestamp, tz=timezone.utc)
         jwt_id = utils.generate_random_string()
         jwt_new_token = JWTToken(jti=jwt_id, user_id=user.id, expired_at=expired_at)
-
+        exit_token = db.session.query(JWTToken).filter_by(user_id=user.id).first()
+        if exit_token and exit_token.id:
+            db.session.delete(exit_token)
+            db.session.commit()
+        # create new token
         db.session.add(jwt_new_token)
         db.session.commit()
         return access_token
 
-    def revoke_token(self, jti):
-        jwt_token = db.session.query(JWTToken).filter_by(jti=jti).first()
-        if jwt_token and not jwt_token.revoked:
-            jwt_token.revoked = True
+    def revoke_token(self, user_id):
+        jwt_token = db.session.query(JWTToken).filter_by(user_id=user_id).first()
+        if jwt_token and jwt_token.id:
+            db.session.delete(jwt_token)
             db.session.commit()
             return True
         return False
 
-    def is_token_revoked(self, jti):
-        jwt_token = db.session.query(JWTToken).filter_by(jti=jti).first()
-        return jwt_token.revoked if jwt_token else False
+    # def is_token_revoked(self, jti):
+    #     jwt_token = db.session.query(JWTToken).filter_by(jti=jti).first()
+    #     return jwt_token.revoked if jwt_token else False
 
 
 access_token = AccessTokenService()
+
+
+class UserWithToken:
+    def __init__(self, user, token) -> None:
+        self.user = user
+        self.token = token

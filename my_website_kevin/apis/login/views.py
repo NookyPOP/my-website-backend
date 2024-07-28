@@ -13,7 +13,12 @@ from flask_restx import Resource, reqparse, marshal, inputs
 # import PyPDF2
 # from werkzeug.utils import secure_filename
 from flask import jsonify, make_response
-from my_website_kevin.apis.login.services import LoginService, RegistryService
+from my_website_kevin.apis.login.services import (
+    LoginService,
+    RegistryService,
+    access_token as a_token,
+    UserWithToken,
+)
 from flask_jwt_extended import jwt_required, current_user
 
 
@@ -93,13 +98,12 @@ class Login(Resource):
 @login_namespace.route("/logout")
 class Logout(Resource):
     @jwt_required()
-    def post(self):
-        user = current_user
-        login_user = LoginService(
-            username=user["username"],
-            password=user["password"],
-        )
-        login_user.logout()
+    def get(self):
+        user, token = current_user
+        print(1111, user)
+        success = a_token.revoke_token(user.id)
+        if not success:
+            return {"message": "Something went wrong"}, 500
         return {"message": "Logout successful"}, 200
 
 
@@ -108,17 +112,22 @@ class WhoAmI(Resource):
     @jwt_required()
     def get(self):
         user = current_user
-        print(1111, user)
-        # return jsonify({"id": user.id, "username": user.username}) return a flask response with a json object
-        # return {"id": user.id, "username": user.username}, 200 return a flask response with a json object and a status code
-        response = make_response(
-            jsonify({"id": user.id, "username": user.username}), 201
-        )
-        # use the make_response function to add headers
-        response.headers["Content-Type"] = "application/json"
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["X-Parachutes"] = "parachutes are cool"
-        return response
+        if isinstance(user, UserWithToken):
+            # return jsonify({"id": user.id, "username": user.username}) return a flask response with a json object
+            # return {"id": user.id, "username": user.username}, 200 return a flask response with a json object and a status code
+            if user.token is not None:
+                print(22, user.token)
+                response = make_response(
+                    jsonify({"id": user.user.id, "username": user.user.username}),
+                    200,
+                )
+                # use the make_response function to add headers
+                response.headers["Content-Type"] = "application/json"
+                response.headers["Access-Control-Allow-Origin"] = "*"
+                response.headers["X-Parachutes"] = "parachutes are cool"
+                return response
+            else:
+                return {"message": "The user is not logged in"}, 401
 
 
 # def protected():

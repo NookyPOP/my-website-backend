@@ -5,10 +5,11 @@ import logging
 import os
 
 from my_website_kevin.apis.login.services import User
-from my_website_kevin.apis.login.models import UserAuth
+from my_website_kevin.apis.login.models import UserAuth, JWTToken
 from my_website_kevin.database import db, migrate
 from my_website_kevin.config import Config
 from my_website_kevin.apis import api
+from my_website_kevin.apis.login.services import UserWithToken
 
 from dotenv import load_dotenv
 
@@ -49,7 +50,6 @@ def load_user(user_id):
 @jwt.user_identity_loader
 def user_identity_lookup(user):
     print("user_identity_loader", user)
-    print(user.__dict__)
     return user.id
 
 
@@ -59,6 +59,7 @@ def user_identity_lookup(user):
 def user_lookup_callback(_jwt_header, jwt_data):
     print("user_lookup_loader", jwt_data)
     identity = jwt_data["sub"]
-    print(1, identity)
-    print(2, db.session.query(UserAuth).filter_by(id=identity).one_or_none())
-    return db.session.query(UserAuth).filter_by(id=identity).one_or_none()
+    user = db.session.query(UserAuth).filter_by(id=identity).first()
+    if user and user.id:
+        token = db.session.query(JWTToken).filter_by(user_id=user.id).first()
+        return UserWithToken(user, token)
