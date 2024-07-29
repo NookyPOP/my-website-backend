@@ -96,15 +96,27 @@ class RegistryService:
 class AccessTokenService:
     def create_token(self, user):
         expires = timedelta(days=1)
+        jwt_id = utils.generate_random_string()
         access_token = create_access_token(
-            identity=user, expires_delta=expires, additional_claims={"claim": "value"}
+            identity=user,
+            expires_delta=expires,
+            additional_claims={"claim": "value"},
+            additional_headers={"jwt_id": jwt_id},
         )
         exp = str(datetime.now(timezone.utc) + expires)
         timestamp = int(parser.isoparse(exp).timestamp())
         expired_at = datetime.fromtimestamp(timestamp, tz=timezone.utc)
-        jwt_id = utils.generate_random_string()
         jwt_new_token = JWTToken(jti=jwt_id, user_id=user.id, expired_at=expired_at)
         exit_token = db.session.query(JWTToken).filter_by(user_id=user.id).first()
+        print(
+            "create_token",
+            access_token,
+            exp,
+            expired_at,
+            jwt_id,
+            jwt_new_token,
+            exit_token,
+        )
         if exit_token and exit_token.id:
             db.session.delete(exit_token)
             db.session.commit()
@@ -133,3 +145,40 @@ class UserWithToken:
     def __init__(self, user, token) -> None:
         self.user = user
         self.token = token
+
+
+class ResetPasswordService:
+    def __init__(self, email, mobile, new_password, token) -> None:
+        self.email = email
+        self.mobile = mobile
+        self.new_password = new_password
+        self.token = token
+        self.status_code = 0
+        self.message = ""
+
+    def verify_reset_token(self):
+        user = (
+            db.session.query(UserAuth)
+            .filter_by(email=self.email, mobile=self.mobile)
+            .first()
+        )
+        if user and user.id:
+            if self.token.expired_at > datetime.utcnow():
+                try:
+                    user.set_password(self.new_password)
+                    db.session.commit()
+                    self.status_code = 200
+                    self.message = "Password reset successful"
+                except Exception as e:
+                    db.session.rollback()
+                    self.status_code = 500
+                    self.message = f"Something went wrong: {e}"
+                return self.status_code, self.message
+            else:
+                self.status_code = 401
+                self.message = "Password reset failed, token expired"
+                return self.status_code, self.message
+        else:
+            self.status_code = 400
+            self.message = "The email or mobile does not exist"
+            return self.status_code, self.message

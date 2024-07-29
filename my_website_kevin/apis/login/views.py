@@ -12,12 +12,13 @@ from flask_restx import Resource, reqparse, marshal, inputs
 # from werkzeug.datastructures import FileStorage
 # import PyPDF2
 # from werkzeug.utils import secure_filename
-from flask import jsonify, make_response
+from flask import jsonify, make_response, request
 from my_website_kevin.apis.login.services import (
     LoginService,
     RegistryService,
     access_token as a_token,
     UserWithToken,
+    ResetPasswordService,
 )
 from flask_jwt_extended import jwt_required, current_user
 
@@ -115,11 +116,10 @@ class WhoAmI(Resource):
         if isinstance(user, UserWithToken):
             # return jsonify({"id": user.id, "username": user.username}) return a flask response with a json object
             # return {"id": user.id, "username": user.username}, 200 return a flask response with a json object and a status code
+            print(22, user.token)
             if user.token is not None:
-                print(22, user.token)
                 response = make_response(
-                    jsonify({"id": user.user.id, "username": user.user.username}),
-                    200,
+                    jsonify({"id": user.user.id, "username": user.user.username}), 200
                 )
                 # use the make_response function to add headers
                 response.headers["Content-Type"] = "application/json"
@@ -128,6 +128,43 @@ class WhoAmI(Resource):
                 return response
             else:
                 return {"message": "The user is not logged in"}, 401
+
+
+@login_namespace.route("/reset-password")
+class ResetPassword(Resource):
+    @login_namespace.param(
+        "email", required=True, type=str, description="Email of user"
+    )
+    @login_namespace.param(
+        "mobile", required=True, type=str, description="Phone of user"
+    )
+    @login_namespace.param(
+        "new_password", required=True, type=str, description="New Password of user"
+    )
+    @jwt_required()
+    def post(self):
+        user = current_user
+        print(1111, user.token)
+        if isinstance(user, UserWithToken):
+            if user.token is None:
+                return {"message": "The user is not logged in"}, 401
+
+            parser = reqparse.RequestParser()
+            parser.add_argument("email", type=str)
+            parser.add_argument("mobile", type=str)
+            parser.add_argument("new_password", type=str)
+            args = parser.parse_args()
+            email = args["email"]
+            mobile = args["mobile"]
+            new_password = args["new_password"]
+            if not email or not mobile or not new_password:
+                return {"message": "All fields are required"}, 400
+
+            reset_password = ResetPasswordService(
+                email=email, mobile=mobile, new_password=new_password, token=user.token
+            )
+            status_code, message = reset_password.verify_reset_token()
+            return {"message": message}, status_code
 
 
 # def protected():
