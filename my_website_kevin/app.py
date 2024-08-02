@@ -59,7 +59,7 @@ def user_identity_lookup(user):
 def user_lookup_callback(_jwt_header, jwt_data):
     print("user_lookup_loader", _jwt_header, jwt_data)
     identity = jwt_data["sub"]
-    jwt_id = _jwt_header["jwt_id"]
+    jwt_id = jwt_data["jwt_id"]
     user = db.session.query(UserAuth).filter_by(id=identity).first()
     if user and user.id:
         token = (

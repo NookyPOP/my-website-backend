@@ -1,4 +1,3 @@
 [virtualenvs]
 in-project = true
-path = "my_venv"  # 自定义虚拟环境路径
-system-site-packages = true  # 不继承系统全局包
+system-site-packages = true  # 继承系统全局包

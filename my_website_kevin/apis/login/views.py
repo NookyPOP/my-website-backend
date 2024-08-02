@@ -12,7 +12,7 @@ from flask_restx import Resource, reqparse, marshal, inputs
 # from werkzeug.datastructures import FileStorage
 # import PyPDF2
 # from werkzeug.utils import secure_filename
-from flask import jsonify, make_response, request
+from flask import jsonify, make_response, request, session
 from my_website_kevin.apis.login.services import (
     LoginService,
     RegistryService,
@@ -21,6 +21,14 @@ from my_website_kevin.apis.login.services import (
     ResetPasswordService,
 )
 from flask_jwt_extended import jwt_required, current_user
+
+
+@login_namespace.route("/")
+class Base(Resource):
+    # session.permanent = True
+
+    def get():
+        pass
 
 
 @login_namespace.route("/registry")
@@ -72,8 +80,9 @@ class Login(Resource):
     @login_namespace.param("password", type=str, description="Password")
     @login_namespace.param("username", type=str, description="Name of login")
     # indicate the username on the swagger_ui
-    @login_namespace.marshal_with(response_model)  #
+    # @login_namespace.marshal_with(response_model)  #
     def post(self):
+        print(1111, request)
         parser = reqparse.RequestParser()
 
         parser.add_argument("username", type=str)
@@ -90,10 +99,16 @@ class Login(Resource):
             "message": message,
             "access_token": access_token,
         }
-        if not login_user.auth_status:
-            return user_dict, 401
-
-        return user_dict, 200
+        res_json = jsonify(user_dict)
+        if not auth_status:
+            response = make_response(res_json, 401)
+            response.set_cookie("cookie_name", "fuck you you")
+            return response
+            # return user_dict, 401
+        response = make_response(res_json, 200)
+        response.set_cookie("cookie_name", "fuck you you too!")
+        # session["username"] = args["username"]
+        return response
 
 
 @login_namespace.route("/logout")
@@ -165,6 +180,18 @@ class ResetPassword(Resource):
             )
             status_code, message = reset_password.verify_reset_token()
             return {"message": message}, status_code
+
+
+@login_namespace.route("/chat-history")
+class ChatHistory(Resource):
+    def get(self):
+        params = request.cookies.get("cookie_name", type=str)
+        print(1111, params, session)
+        if "username" in session:
+            username = session["username"]
+            print(username)
+
+        return {"message": "Chat history retrieved successfully"}, 200
 
 
 # def protected():

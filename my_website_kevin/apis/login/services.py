@@ -100,8 +100,7 @@ class AccessTokenService:
         access_token = create_access_token(
             identity=user,
             expires_delta=expires,
-            additional_claims={"claim": "value"},
-            additional_headers={"jwt_id": jwt_id},
+            additional_claims={"claim": "value", "jwt_id": jwt_id},
         )
         exp = str(datetime.now(timezone.utc) + expires)
         timestamp = int(parser.isoparse(exp).timestamp())

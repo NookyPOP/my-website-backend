@@ -20,3 +20,6 @@ class Config(object):
     # jwt 使用这个 key来加密和解密，是一种对称加密
     # JWT 密钥用于对 JWT 进行加密和解密。使用对称加密算法时，相同的密钥用于加密和解密，而使用非对称加密算法时，需要使用公钥加密，私钥解密。
     # 或者在主机环境中设置环境变量，如: export JWT_SECRET_KEY=123456
+    SESSION_PERMANENT = False  # 是否永久保存session, session 数据在浏览器关闭后过期
+    SESSION_TYPE = "filesystem"
+    SESSION_FILES_DIR = "../../.FlaskSession"
